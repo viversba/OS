@@ -21,6 +21,7 @@ int TamanioArchivo();
 void cargarHash();
 void press();
 void borrarArchivo();
+void mostrarHash();
 
 struct names{
     char nombre[32];
@@ -40,12 +41,11 @@ struct nodo{
 	int edad;
 	char raza[16];
 	int estatura;
-	int peso;
+	float peso;
 	char sexo;
 	struct nodo * next;
 }nodo;
 struct nodo h[1721];
-int total=0;
 
 int main(){
 	//generar();
@@ -160,9 +160,7 @@ void ingresar(){
 	temp->sexo = sexo;
 	temp->key = key;
 	temp->id=0;
-	calcular(temp);
     save(temp);
-    total ++; // CHANGED total++
 };
 
 void verRegistro(){
@@ -238,7 +236,7 @@ void calcular(struct nodo *next){
 	int peso = next->peso;
 	char sexo = next->sexo;
 	int key = next->key;
-	int llave = key%1009;
+	int llave = key%1721;
 	int i;
 	while(i>=0){
 	if((h[llave]).key==0){
@@ -292,7 +290,7 @@ void calcular(struct nodo *next){
 				}
 			}			
 		}else{
-			if(llave==1008){
+			if(llave==1720){
 				llave = 0;
 			}else{
 			llave= llave+1;
@@ -303,7 +301,9 @@ void calcular(struct nodo *next){
 }
 
 void mostrar(){
-	char name[32];
+	
+    cargarHash();
+    char name[32];
 	int i=0;
 	int id=0;
 	struct nodo * next;
@@ -313,9 +313,10 @@ void mostrar(){
 	printf("Ingrese el nombre de la mascota: ");
 	scanf("%s",name);
 	if(strcmp(name,"TODOS")==0 || strcmp(name,"todos")==0){
-		printf("\nPosicion\tCodigo\t\tId\t\tnombre\n");
-		for(i=0;i<1009;i++){
+        printf("\nPosicion\tCodigo\t\tId\t\tnombre\n");
+		for(i=0;i<1721;i++){
 			if((h[i].key != 0)){
+                //mostrarHash(i);
 				printf("%d\t\t%d\t\t%d\t\t%s\n",i,h[i].key,h[i].id,h[i].nombre);
 				if(h[i].next!=NULL){
 					next = h[i].next;
@@ -329,10 +330,14 @@ void mostrar(){
 				
 			}
 		}
-	}else{
-		int key = convertir(name);
+	}
+    else{
+        //printf("AQUI2");
+        int key = convertir(name);
 		int llave = key%1721;
 		int i=0;
+        printf("\nKEY%d\n",llave);
+        mostrarHash(llave);
 		while(i==0){
 			if(strcmp(h[llave].nombre,name)==0){
 				printf("\nPosicion\tCodigo\t\tId\t\tnombre\n");
@@ -346,12 +351,15 @@ void mostrar(){
 						printf("%d\t%d\t%s\n",llave,next->key,next->nombre);
 					}
 				}
-			break;
-			}else{
+                i = 1;
+                break;
+			}
+            else{
 				if(llave==1720){
-					llave = 0;				
-				}else{
-					llave+=1;				
+					llave = 0;
+				}
+                else{
+					llave+=1;
 				}
 			}
 		}
@@ -445,7 +453,12 @@ int convertir(char nombre[32]){
             valor += (int)toupper(nombre[i]);
         }
        }
-     return valor;
+    if(valor < 0){
+        return (-1*valor);
+    }
+    else{
+        return valor;
+    }
 }
 
 void cargarHash(){
@@ -456,7 +469,7 @@ void cargarHash(){
         perror("Couldn't allocate memory for next in cargarhash");
         exit(-1);
     }
-    ap = fopen("datadogs.dat","r");
+    ap = fopen("dataDogs.dat","r");
     if(ap == NULL){
         perror("Couldn't open datadogs.dat on cargarHash");
         exit(-1);
@@ -468,7 +481,11 @@ void cargarHash(){
     int i,r = 0;
     printf("\nCargando Hash.....");
     for(i=0;i<TamanioArchivo(ap);i++){
+        fseek(ap, (i)*sizeof(struct nodo), SEEK_SET);
         r = fread(next,sizeof(struct nodo),1,ap);
+        next->key = convertir(next->nombre);
+        //printf("\nNOMBRE%s\n",next->nombre);
+        //printf("\nKEY%d\n",next->key);
         if (r == -1) { // ERRORS
             perror("No se puede leer el archivo");
             exit(-1);
@@ -682,6 +699,15 @@ int TamanioArchivo(FILE *fp){
     int Total=ftell(fp)/sizeof(struct nodo);
     return Total;
 };
+
+void mostrarHash(int pos){
+
+    printf("HASH");
+    printf("\n%d\n",h[pos].key);
+    printf("\n%s\n",h[pos].nombre);
+}
+
+
 
 
 
