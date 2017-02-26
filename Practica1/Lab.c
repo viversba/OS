@@ -44,14 +44,14 @@ struct nodo{
 	char sexo;
 	struct nodo * next;
 }nodo;
-struct nodo h[1009];
+struct nodo h[1721];
 int total=0;
 
 int main(){
 	//generar();
 	//struct nodo hash_table[1009];
 	int i;
-	for(i=0;i<1009;i++){
+	for(i=0;i<1721;i++){
 		h[i].key=0;
 	}
 	i=0;
@@ -206,7 +206,7 @@ void verRegistro(){
 				}
 			}
 		}
-	if(paso==0)printf("No existe registro, intenta de nuevo: ");
+        if(paso==0)printf("No existe registro, intenta de nuevo: ");
 	}while(paso==0);
     free(temp);
 }
@@ -331,7 +331,7 @@ void mostrar(){
 		}
 	}else{
 		int key = convertir(name);
-		int llave = key%1009;
+		int llave = key%1721;
 		int i=0;
 		while(i==0){
 			if(strcmp(h[llave].nombre,name)==0){
@@ -348,7 +348,7 @@ void mostrar(){
 				}
 			break;
 			}else{
-				if(llave==1008){
+				if(llave==1720){
 					llave = 0;				
 				}else{
 					llave+=1;				
