@@ -21,7 +21,6 @@ int TamanioArchivo();
 void cargarHash();
 void press();
 void borrarArchivo();
-void mostrarHash();
 
 struct names{
     char nombre[32];
@@ -48,11 +47,16 @@ struct nodo{
 struct nodo h[1721];
 
 int main(){
-	//generar();
-	//struct nodo hash_table[1009];
 	int i;
 	for(i=0;i<1721;i++){
 		h[i].key=0;
+	}
+	FILE *ap;
+	ap = fopen("dataDogs.dat","r");
+	if(ap==NULL){
+			
+	}else{
+		cargarHash();
 	}
 	i=0;
 	do{
@@ -65,18 +69,26 @@ int main(){
 	scanf("%d",&i);
 	if(i==1){
            	ingresar();
+		    press();
 	}else if(i==2){
-        cargarHash();
 			verRegistro();
+		    press();
 	}else if(i==3){
 			//borrar();
             borrarArchivo();
+            cargarHash();
+		    press();
 	}else if(i==4){
 			mostrar();
+		    press();
 	}else if(i==5){
 			break;
 	}else if(i==6){
+			for(i=0;i<1721;i++){
+				h[i].key=0;
+			}
 	 		generar();
+		    press();
 	}
 	}while(i!=0);
 	return 0;
@@ -84,7 +96,6 @@ int main(){
 
 void ingresar(){
 
-	//struct nodo hash_table[1009];
   //DECLARACION DE NOMBRES
   char nombre[32];
 	char tipo[32];
@@ -97,22 +108,14 @@ void ingresar(){
 	int id;
     char caracter;
 
-	//INGRESO DE VARIABLES
     //INGRESO DE VARIABLES
     caracter = mygetch();
     getInput("Ingrese el nombre:", nombre, 33);
-    //printf("Ingrese Nombre: ");
-    //scanf("%s",nombre);
-    //caracter = mygetch();
     getInput("Ingrese el tipo:", tipo, 33);
-    //printf("Ingrese Tipo: ");
-    //scanf("%s",tipo);
     printf("Ingrese Edad: ");
     scanf("%i",&edad);
     caracter = mygetch();
     getInput("Ingrese la raza:", raza, 17);
-    //printf("Ingrese Raza: ");
-    //scanf("%s",raza);
     printf("Ingrese Estatura: ");
     scanf("%d",&estatura);
     printf("Ingrese Peso: ");
@@ -149,9 +152,9 @@ void ingresar(){
             raza[u] = ' ';
         }
     }
-    
-	strncpy(temp->nombre,nombre,32);
 	key = convertir(temp->nombre);
+    strcat(nombre," ");
+	strncpy(temp->nombre,nombre,32);
 	strncpy(temp->tipo,tipo,32);
 	temp->edad = edad;
 	strncpy(temp->raza,raza,16);
@@ -160,42 +163,92 @@ void ingresar(){
 	temp->sexo = sexo;
 	temp->key = key;
 	temp->id=0;
+	calcular(temp);
     save(temp);
 };
 
 void verRegistro(){
     FILE *ap;
     ap = fopen("dataDogs.dat","r");
+    int cantidadListas = TamanioArchivo(ap);
     if(ap == NULL){
         perror("Can't open dataDogs.dat in verRegistro");
         exit(-1);
     }
-    printf("El numero de registros presentes es de %d, ingrese el numero del registro a ver: ",TamanioArchivo(ap));
+    if (cantidadListas == 0){
+        printf("No hay registros\n");
+        return;
+    }
+    printf("El numero de registros presentes es de %d",TamanioArchivo(ap));
+	printf("ingrese el numero del registro a ver: ");
 	int ver;
 	int paso=0;
 	struct nodo * temp;
 	temp = (struct nodo *)malloc(sizeof(struct nodo));
-    fclose(ap);
+	ap = fopen("historia.txt","w");
+	if(ap==NULL){perror("No se puede crear"); exit(-1);}
+    int r;
+    ap = fopen("historia.txt","a+");
+    if(ap == NULL){perror("No se puede crear o abrir el archivo"); exit(-1);}
+    
+    
+    FILE *fp; //Creamos un archivo temporal.
+    int i; //Variable para el ciclo
+    int aEliminar; //Número del perro a eliminar
+    struct nodo *perro = malloc(sizeof(struct nodo));
+    fp=fopen("dataDogs.dat","r");
+    char nom[32];
+    if (fp==NULL){
+        printf("No se encontro el archivo dataDogs.dat");
+        return;
+    }
+    else{
+        scanf("%d",&ver);
+        while(ver>cantidadListas){
+            printf("El registro no existe. Por favor, intente otra vez: ");
+            scanf("%d",&ver);
+            printf("%i",ver);
+        }
+        ver = ver-1;
+        for(i = 0 ; i < cantidadListas ; i++){
+            fseek(fp, (i)*sizeof(struct nodo),SEEK_SET);//mueve fp hasta el registro i
+            if(i==(ver)){//guarda los registros diferentes al que se va a elminar en el archivo temporal
+                fread(perro, sizeof(struct nodo), 1, fp);
+            }
+        }
+        fclose(fp);
+    }
+    
+    int key = convertir(perro->nombre);
+    key = key%1721;
+    key = key*6000;
+    ver = key;
 	do{
-		scanf("%d",&ver);
 		int llave = (int)(ver/6000);
-        printf("%d",h[llave].key);          //Arreglar: h[llave].key siempre es 0
+        printf("%d",h[llave].key);         
 		if(h[llave].key>=0){
 			if(h[llave].id==ver){
-                printf("AQUI1");
-				//saque los datos de h[llave].algo
-                system("gedit ");
-				printf("%s",h[llave].nombre);
-				printf("%s",h[llave].tipo);
+				temp->id = h[llave].id;
+				strncpy(temp->nombre,h[llave].nombre,32);
+				strncpy(temp->tipo,h[llave].tipo,32);
+				temp->edad = h[llave].edad;
+				strncpy(temp->raza,h[llave].raza,16);
+				temp->estatura = h[llave].estatura;
+				temp->peso = h[llave].peso;
+				temp->sexo = h[llave].sexo;
+				r = fwrite(temp,sizeof(struct nodo),1,ap);
+				fclose(ap);
+   				if(r != 1){perror("No se puede escribir en el archivo"); exit(-1);}
+				system("gedit historia.txt");
 				break;
 			}else{
 				temp = h[llave].next;
-                printf("AQUI2");
 				while(temp!=NULL){
 					if(temp->id==ver){
-					//saque los datos de temp->algo
-					printf("%s",temp->nombre);
-					printf("%s",temp->tipo);
+					r = fwrite(temp,sizeof(struct nodo),1,ap);
+					fclose(ap);
+   					if(r != 1){perror("No se puede escribir en el archivo"); exit(-1);}
+					system("gedit historia.txt");
 					paso=1;				
 					break;
 					}else{
@@ -218,19 +271,16 @@ void calcular(struct nodo *next){
         nombre[o] = toupper(next->nombre[o]);
     }
     //Asignación tipo
-    //strncpy(nombre,next->nombre,32);
     char tipo[32];
     for(o=0;o<32;o++){
         tipo[o] = toupper(next->tipo[o]);
     }
     //Asignación raza
-    //strncpy(tipo,next->tipo,32);
     int edad = next->edad;
     char raza[16];
     for(o=0;o<16;o++){
         raza[o] = toupper(next->raza[o]);
     }
-    //strncpy(raza,next->raza,16);
 	strncpy(raza,next->raza,16);
 	int estatura = next->estatura;
 	int peso = next->peso;
@@ -302,68 +352,72 @@ void calcular(struct nodo *next){
 
 void mostrar(){
 	
-    cargarHash();
     char name[32];
+	char nombre[32];
 	int i=0;
 	int id=0;
+	int o = 0;
+	int m =0;
 	struct nodo * next;
 	struct nodo * temp;
 	next = (struct nodo *)malloc(sizeof(struct nodo));
 	temp = (struct nodo *)malloc(sizeof(struct nodo));
-	printf("Ingrese el nombre de la mascota: ");
-	scanf("%s",name);
-	if(strcmp(name,"TODOS")==0 || strcmp(name,"todos")==0){
-        printf("\nPosicion\tCodigo\t\tId\t\tnombre\n");
-		for(i=0;i<1721;i++){
-			if((h[i].key != 0)){
-                //mostrarHash(i);
-				printf("%d\t\t%d\t\t%d\t\t%s\n",i,h[i].key,h[i].id,h[i].nombre);
-				if(h[i].next!=NULL){
-					next = h[i].next;
-					temp = h[i].next;
-					printf("%d\t\t%d\t\t%d\t\t%s\n",i,next->key,next->id,next->nombre);
-					while(next->next!=NULL){
-						next = next->next;
-						printf("%d\t\t%d\t\t%d\t\t%s\n",i,next->key,next->id,next->nombre);
-					}
-				}
-				
-			}
+	do{
+		printf("Ingrese el nombre de la mascota: ");
+		scanf("%s",nombre);
+		for(o=0;o<32;o++){
+			name[o] = toupper(nombre[o]);
 		}
-	}
-    else{
-        //printf("AQUI2");
-        int key = convertir(name);
+		int key = convertir(name);
 		int llave = key%1721;
-		int i=0;
-        printf("\nKEY%d\n",llave);
-        mostrarHash(llave);
-		while(i==0){
-			if(strcmp(h[llave].nombre,name)==0){
-				printf("\nPosicion\tCodigo\t\tId\t\tnombre\n");
-				printf("si");
-				printf("%d\t%d\t\t%d\t\t%s\n",llave,h[llave].key,h[llave].id,h[llave].nombre);
-				if(h[llave].next!=NULL){
-					next = h[llave].next;
-					printf("%d\t%d\t%s\n",llave,next->key,next->nombre);
-					while(next->next!=NULL){
-						next = next->next;
-						printf("%d\t%d\t%s\n",llave,next->key,next->nombre);
+		strcat(name," ");
+		if(strcmp(name,"TODOS ")==0){
+		    printf("\nPosicion\tCodigo\t\tId\t\tnombre\n");
+			for(i=0;i<1721;i++){
+				if((h[i].key != 0)){
+		            //mostrarHash(i);
+					printf("%d\t\t%d\t\t%d\t\t%s\n",i,h[i].key,h[i].id,h[i].nombre);
+					if(h[i].next!=NULL){
+						next = h[i].next;
+						temp = h[i].next;
+						printf("%d\t\t%d\t\t%d\t\t%s\n",i,next->key,next->id,next->nombre);
+						while(next->next!=NULL){
+							next = next->next;
+							printf("%d\t\t%d\t\t%d\t\t%s\n",i,next->key,next->id,next->nombre);
+						}
+					}
+				
+				}
+			}
+			m=1;
+		}else{
+			int i=0;
+			while(i<2000){
+				if(strcmp(h[llave].nombre,name)==0){
+					printf("\nPosicion\tCodigo\t\tId\t\tnombre\n");
+					printf("%d\t\t%d\t%d\t%s\n",llave,h[llave].key,h[llave].id,h[llave].nombre);
+					if(h[llave].next!=NULL){
+						next = h[llave].next;
+						printf("%d\t\t%d\t%d\t%s\n",llave,next->key,next->id,next->nombre);
+						while(next->next!=NULL){
+							next = next->next;
+							printf("%d\t\t%d\t%d\t%s\n",llave,next->key,next->id,next->nombre);
+						}
+					}
+		            i = 1;
+					m=1;
+		            break;
+				}else{
+					if(llave==1720){
+						llave = 0;
+					}else{
+						llave+=1;
 					}
 				}
-                i = 1;
-                break;
-			}
-            else{
-				if(llave==1720){
-					llave = 0;
-				}
-                else{
-					llave+=1;
-				}
+				i++;
 			}
 		}
-	}
+	}while(m==0);
 }
 
 void borrar(){
@@ -372,6 +426,10 @@ void borrar(){
     if(ap == NULL){
         perror("Couldn't open dataDogs.dat on 'borrar' function");
         exit(-1);
+    }
+    if (TamanioArchivo(ap) == 0){
+        printf("No hay registros\n");
+        return;
     }
     printf("El numero de registros presentes es de %d, ingrese el numero del registro a borrar: ",TamanioArchivo(ap));
 	int rem;
@@ -564,28 +622,20 @@ void generar(){
     //ITERACION RANDOM
     for(int i=0;i<reg;i++){
         
-        //DECLARACION VARIABLES RANDOM
-        int nombre = rand() % 1716;
-        int tipo = rand() % 4;
-        int edad = rand() % 20;
-        int raza = rand() % 52;
-        int estatura = rand() % 50;
-        float peso = rand() % 60;
-        char sexo = "HM"[random () % 2];
-        
         //ASIGNACION EN NODO
-        strncpy(perro->nombre,nombres[nombre].nombre,32);
+        strncpy(perro->nombre,nombres[rand() % 1716].nombre,32);
+		perro->key = convertir(perro->nombre);
         perro->id = 0;
         //perro->key = convertir(perro->nombre);
-        strncpy(perro->tipo,tipos[tipo].tipo,32);
-        perro->edad = edad;
-        strncpy(perro->raza,razas[raza].breed,16);
-        perro->estatura = estatura;
-        perro->peso = peso;
-        perro->sexo = sexo;
+        strncpy(perro->tipo,tipos[rand() % 4].tipo,32);
+        perro->edad = rand() % 20;
+        strncpy(perro->raza,razas[rand() % 52].breed,16);
+        perro->estatura = rand() % 50;
+        perro->peso = rand() % 60;
+        perro->sexo = "HM"[random () % 2];
+		calcular(perro);
         save(perro);
     }
-    press();
 }
 
 void borrarArchivo(){
@@ -645,7 +695,7 @@ void borrarArchivo(){
         fclose(tmp);
         printf("El registro ha sido exitosamente eliminado.\n");
     }
-    cargarHash();
+   // cargarHash();
 }
 
 int mygetch(){
@@ -699,16 +749,4 @@ int TamanioArchivo(FILE *fp){
     int Total=ftell(fp)/sizeof(struct nodo);
     return Total;
 };
-
-void mostrarHash(int pos){
-
-    printf("HASH");
-    printf("\n%d\n",h[pos].key);
-    printf("\n%s\n",h[pos].nombre);
-}
-
-
-
-
-
 
