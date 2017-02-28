@@ -169,9 +169,14 @@ void ingresar(){
 void verRegistro(){
     FILE *ap;
     ap = fopen("dataDogs.dat","r");
+    int cantidadListas = TamanioArchivo(ap);
     if(ap == NULL){
         perror("Can't open dataDogs.dat in verRegistro");
         exit(-1);
+    }
+    if (cantidadListas == 0){
+        printf("No hay registros\n");
+        return;
     }
     printf("El numero de registros presentes es de %d",TamanioArchivo(ap));
 	printf("ingrese el numero del registro a ver: ");
@@ -184,8 +189,42 @@ void verRegistro(){
     int r;
     ap = fopen("historia.txt","a+");
     if(ap == NULL){perror("No se puede crear o abrir el archivo"); exit(-1);}
+    
+    
+    FILE *fp; //Creamos un archivo temporal.
+    int i; //Variable para el ciclo
+    int aEliminar; //Número del perro a eliminar
+    struct nodo *perro = malloc(sizeof(struct nodo));
+    fp=fopen("dataDogs.dat","r");
+    char nom[32];
+    if (fp==NULL){
+        printf("No se encontro el archivo dataDogs.dat");
+        return;
+    }
+    else{
+        scanf("%d",&ver);
+        while(ver>cantidadListas){
+            printf("El registro no existe. Por favor, intente otra vez: ");
+            scanf("%d",&ver);
+            printf("%i",ver);
+        }
+        ver = ver-1;
+        for(i = 0 ; i < cantidadListas ; i++){
+            fseek(fp, (i)*sizeof(struct nodo),SEEK_SET);//mueve fp hasta el registro i
+            if(i==(ver)){//guarda los registros diferentes al que se va a elminar en el archivo temporal
+                fread(perro, sizeof(struct nodo), 1, fp);
+            }
+        }
+        fclose(fp);
+    }
+    
+    int key = convertir(perro->nombre);
+    printf("\nKEY%s\n",perro->nombre);
+    key = key%1721;
+    printf("\nKEY%d\n",key);
+    key = key*6000;
+    printf("\nKEY%d\n",key);
 	do{
-		scanf("%d",&ver);
 		int llave = (int)(ver/6000);
         printf("%d",h[llave].key);         
 		if(h[llave].key>=0){
