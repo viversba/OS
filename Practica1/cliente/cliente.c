@@ -90,23 +90,27 @@ void Cliente(int clienteSockfd){
            char nombre[32];
            caracter = mygetch();
            getInput("Ingrese el nombre:", nombre, 33);
-           write(clienteSockfd, nombre, sizeof(nombre));
+           write(clienteSockfd, nombre, strlen(nombre));
            char tipo[32];
            getInput("Ingrese el tipo:", tipo, 33);
-           write(clienteSockfd, tipo, sizeof(tipo));
-           int edad;
+           write(clienteSockfd, tipo, strlen(tipo));
+           char edad[2];
            printf("Ingrese Edad: ");
-           scanf("%i",&edad);
+           scanf("%s",edad);
+           write(clienteSockfd, tipo, strlen(edad));
            //caracter = mygetch();
            char raza[16];
            caracter = mygetch();
            getInput("Ingrese la raza:", raza, 17);
-           int estatura;
+           write(clienteSockfd, raza, strlen(raza));
+           char estatura[2];
            printf("Ingrese Estatura: ");
-           scanf("%d",&estatura);
-           int peso;
+           scanf("%s",estatura);
+           write(clienteSockfd, estatura, strlen(estatura));
+           char peso[2];
            printf("Ingrese Peso: ");
-           scanf("%d",&peso);
+           scanf("%s",peso);
+           write(clienteSockfd, peso, strlen(peso));
            char sexo;
            printf("Ingrese Sexo: ");
            scanf("%s",&sexo);
@@ -114,6 +118,7 @@ void Cliente(int clienteSockfd){
                printf("\nCaracter no valido.\n Por favor, intente de nuevo: ");
                scanf("%s", &sexo);
            }
+           write(clienteSockfd, &sexo, 1);
            
            press();
        }else if(strcmp(buffer_para_servidor, "2") == 0){
