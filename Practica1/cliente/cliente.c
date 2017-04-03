@@ -65,10 +65,31 @@ int configuracaoCliente(){
         exit(1);
     }
         return clienteSockfd;
+};
+
+int entero(char num[8]){
+	int tam = strlen(num);
+	printf("\nentero %s\n",num);
+	int i, salida = 0;
+	int ayuda = 0;
+	for(i=0; i<tam; i++){
+		salida = salida*10;
+		ayuda = num[i]-48;
+		salida+=ayuda;
+	}
+	return salida;
 }
  
 void Cliente(int clienteSockfd){
   /*Buffer de dados a ser mandado para o servidor*/
+  int tam;
+  char tamT[3];
+  char confirmacion[20];
+  char tamano[2];
+  char opcion[2];
+  char id[10]="\n";
+  char sizeD[10];	
+  char texto[120];
   char buffer_para_servidor[256];
   printf("Digite uma mensage para el servidor: ");
    do {
@@ -79,57 +100,140 @@ void Cliente(int clienteSockfd){
        printf("4-Buscar registro\n");
        printf("5-salir\n\n");
        char caracter;
-       
-       //scanf("%s",buffer_para_servidor);
        int i = 0;
-       scanf("%s",buffer_para_servidor);
-       char *data = (char*)&i;
-       write(clienteSockfd, buffer_para_servidor, sizeof(i));
-       if(strcmp(buffer_para_servidor, "1") == 0){
-           
+       scanf("%s",opcion);
+	     strcat(opcion,"0");
+       write(clienteSockfd, opcion,2);
+		  printf("opcion = %s\n",opcion);
+       
+
+       if(strcmp(opcion, "10") == 0){
            char nombre[32];
            caracter = mygetch();
+		   //nombre
            getInput("Ingrese el nombre:", nombre, 33);
-           write(clienteSockfd, nombre, strlen(nombre));
+		   tam = strlen(nombre);
+		   if(strlen(nombre)<10){
+			write(clienteSockfd,"0",1);
+			sprintf(tamano,"%d",tam);
+			write(clienteSockfd,tamano,1);
+		   }else{
+			sprintf(tamano,"%d",tam);
+			write(clienteSockfd,tamano,2);
+		   }
+           write(clienteSockfd, nombre,strlen(nombre));
+		   //tipo
            char tipo[32];
            getInput("Ingrese el tipo:", tipo, 33);
+		   tam = strlen(tipo);
+		   if(strlen(tipo)<10){
+			write(clienteSockfd,"0",1);
+			sprintf(tamano,"%d",tam);
+			write(clienteSockfd,tamano,1);
+		   }else{
+			sprintf(tamano,"%d",tam);
+			write(clienteSockfd,tamano,2);
+		   }
            write(clienteSockfd, tipo, strlen(tipo));
+		   //edad
            char edad[2];
-           printf("Ingrese Edad: ");
-           scanf("%s",edad);
-           write(clienteSockfd, tipo, strlen(edad));
-           //caracter = mygetch();
+           getInput("Ingrese el edad:", edad, 3);
+		   tam = strlen(edad);
+		   if(strlen(edad)<10){
+			write(clienteSockfd,"0",1);
+			sprintf(tamano,"%d",tam);
+			write(clienteSockfd,tamano,1);
+		   }else{
+			sprintf(tamano,"%d",tam);
+			write(clienteSockfd,tamano,2);
+		   }
+		   write(clienteSockfd, edad, strlen(edad));
+		   //raza
            char raza[16];
-           caracter = mygetch();
            getInput("Ingrese la raza:", raza, 17);
-           write(clienteSockfd, raza, strlen(raza));
-           char estatura[2];
-           printf("Ingrese Estatura: ");
-           scanf("%s",estatura);
-           write(clienteSockfd, estatura, strlen(estatura));
+		   tam = strlen(raza);
+		   if(strlen(raza)<10){
+			write(clienteSockfd,"0",1);
+			sprintf(tamano,"%d",tam);
+			write(clienteSockfd,tamano,1);
+		   }else{
+			sprintf(tamano,"%d",tam);
+			write(clienteSockfd,tamano,2);
+		   }
+		   write(clienteSockfd, raza, strlen(raza));
+		   //estatura
+           char estatura[3];
+           getInput("Ingrese el estatura:", estatura, 3);
+		   tam = strlen(estatura);
+		   if(strlen(estatura)<10){
+			write(clienteSockfd,"0",1);
+			sprintf(tamano,"%d",tam);
+			write(clienteSockfd,tamano,1);
+		   }else{
+			sprintf(tamano,"%d",tam);
+			write(clienteSockfd,tamano,2);
+		   }
+		   write(clienteSockfd, estatura, strlen(estatura));
+		   //peso
            char peso[2];
-           printf("Ingrese Peso: ");
-           scanf("%s",peso);
-           write(clienteSockfd, peso, strlen(peso));
-           char sexo;
-           printf("Ingrese Sexo: ");
-           scanf("%s",&sexo);
-           while( sexo != 'H' && sexo != 'M' ){
+           getInput("Ingrese el peso:", peso, 3);
+		   tam = strlen(peso);
+		   if(strlen(peso)<10){
+			write(clienteSockfd,"0",1);
+			sprintf(tamano,"%d",tam);
+			write(clienteSockfd,tamano,1);
+		   }else{
+			sprintf(tamano,"%d",tam);
+			write(clienteSockfd,tamano,2);
+		   }
+		   write(clienteSockfd, peso, strlen(peso));
+           char sexo[2];
+           getInput("Ingrese el sexo:", sexo, 3);
+		   write(clienteSockfd, sexo, strlen(sexo));
+           /*while( sexo != 'H' && sexo != 'M' ){
                printf("\nCaracter no valido.\n Por favor, intente de nuevo: ");
                scanf("%s", &sexo);
-           }
-           write(clienteSockfd, &sexo, 1);
-           
+           }*/
+
+           recv(clienteSockfd,confirmacion,17,0);
+		   printf("\n%s\n",confirmacion);
            press();
-       }else if(strcmp(buffer_para_servidor, "2") == 0){
-           
-           char perro[8];
-           caracter = mygetch();
-           getInput("Ingrese el id de la mascota a ver:", perro, 9);
-           write(clienteSockfd, perro, sizeof(perro));
-           
+       }
+       
+
+       else if(strcmp(opcion, "20") == 0){
+            recv(clienteSockfd,sizeD,10,0);
+		        printf("Existen %s registros. ",sizeD);
+            char perro[8];
+            caracter = mygetch();
+			      int r=2;
+			      do{
+              getInput("Ingrese el id de la mascota a ver:", perro, 9);
+		          tam = strlen(perro);
+			        if(tam<8){
+				      int p;
+				      for(p=0;p<(8-tam);p++){
+					    strcat(id,"0");
+				      }
+			      }
+            
+			   strcat(id,perro);
+         printf("ID  %s",id);
+         write(clienteSockfd, id, 10);
+			   recv(clienteSockfd,tamT,3,0);
+			   tam = entero(tamT);
+			   recv(clienteSockfd,texto,tam,0);
+			   printf("%s",texto);
+			   if(strcmp(texto,"No")!=0){
+				    r=1;
+			   }else{
+				    printf(" existe. ");
+			   }
+			 }while(r==2);
            press();
-       }else if(strcmp(buffer_para_servidor, "3") == 0){
+       }
+
+       else if(strcmp(opcion, "3") == 0){
            
            char perro[8];
            caracter = mygetch();
@@ -137,7 +241,9 @@ void Cliente(int clienteSockfd){
            write(clienteSockfd, perro, sizeof(perro));
            
            press();
-       }else if(strcmp(buffer_para_servidor, "4") == 0){
+       }
+
+       else if(strcmp(opcion, "4") == 0){
            
            char perro[32];
            caracter = mygetch();
@@ -145,7 +251,9 @@ void Cliente(int clienteSockfd){
            write(clienteSockfd, perro, sizeof(perro));
            
            press();
-       }else if(strcmp(buffer_para_servidor, "5") == 0){
+       }
+
+       else if(strcmp(opcion, "5") == 0){
            write(clienteSockfd, "salir", 5);
        }else if(i==6){
            //for(i=0;i<1721;i++){
@@ -159,9 +267,9 @@ void Cliente(int clienteSockfd){
         /*Escreve para o servidor*/
  
         //write(clienteSockfd, buffer_para_servidor, sizeof (buffer_para_servidor));
- 
+ 		write(clienteSockfd,"00",2);
       /*Mensagem para sair*/
-    } while (strcmp(buffer_para_servidor, "salir") != 0);
+    } while (opcion != "5");
     /**Encerra o descritor*/
     close(clienteSockfd);
 }
@@ -177,43 +285,9 @@ int main(){
     
     int i;
     i=0;
-    do{
-//    printf("\nIngrese una opcion\n");
-//    printf("1-Ingresar registro\n");
-//    printf("2-Ver registros\n");
-//    printf("3-Borrar registro\n");
-//    printf("4-Buscar registro\n");
-//    printf("5-salir\n\n");
+    do{  
         Cliente(descritorCliente);
-//    if(i==1){
-//        struct nodo *perro;
-//        perro = ingresar();
-//        printf("%s",perro->nombre);
-//        Cliente(descritorCliente);
-//        press();
-//    }else if(i==2){
-//        //verRegistro();
-//        //Cliente(descritorCliente);
-//        press();
-//    }else if(i==3){
-//        //borrar();
-//        press();
-//    }else if(i==4){
-//        //mostrar();
-//        press();
-//    }else if(i==5){
-//        //escribirHash();
-//        break;
-//    }else if(i==6){
-//        //for(i=0;i<1721;i++){
-//        //    h[i].key=0;
-//        //}
-//        //generar();
-//        //press();
-//    }
     }while(i!=0);
-    /*chama funcao do cliente passando o descritor*/
-    //Cliente(descritorCliente);
     exit(0);
 }
 
