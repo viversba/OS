@@ -201,7 +201,7 @@ void Cliente(int clienteSockfd){
        }
        
 
-       else if(strcmp(opcion, "20") == 0){
+      else if(strcmp(opcion, "20") == 0){
             recv(clienteSockfd,sizeD,10,0);
 		        printf("Existen %s registros. ",sizeD);
             char perro[8];
@@ -216,7 +216,7 @@ void Cliente(int clienteSockfd){
 					    strcat(id,"0");
 				      }
 			      }
-            
+
 			   strcat(id,perro);
          printf("ID  %s",id);
          write(clienteSockfd, id, 10);
@@ -224,24 +224,38 @@ void Cliente(int clienteSockfd){
 			   tam = entero(tamT);
 			   recv(clienteSockfd,texto,tam,0);
 			   printf("%s",texto);
-			   if(strcmp(texto,"No")!=0){
+			    if(strcmp(texto,"No")!=0){
 				    r=1;
-			   }else{
+			    }
+          else{
 				    printf(" existe. ");
-			   }
-			 }while(r==2);
-           press();
-       }
+			    }
+			  }while(r==2);
+        press();
+      }
 
-       else if(strcmp(opcion, "3") == 0){
+      else if(strcmp(opcion, "30") == 0){
            
-           char perro[8];
-           caracter = mygetch();
-           getInput("Ingrese el id de la mascota a borrar:", perro, 9);
-           write(clienteSockfd, perro, sizeof(perro));
-           
-           press();
-       }
+        recv(clienteSockfd,sizeD,10,0);
+        printf("Existen %s registros. ",sizeD);
+        char perro[8];
+        caracter = mygetch();
+        int r=2;
+        do{
+          getInput("Ingrese el id de la mascota a ver:", perro, 9);
+          tam = strlen(perro);
+          if(tam<8){
+          int p;
+          for(p=0;p<(8-tam);p++){
+          strcat(id,"0");
+          }
+        }
+        strcat(id,perro);
+        printf("ID  %s",id);
+        write(clienteSockfd, id, 10);
+        //TODO   
+        press();
+      }
 
        else if(strcmp(opcion, "4") == 0){
            
