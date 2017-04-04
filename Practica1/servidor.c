@@ -198,9 +198,10 @@ void verRegistro(int sockEntrada,int vere){
 					sprintf(tamano,"%s",num);
 				}
 				send(sockEntrada,tamano,3,0);
-				send(sockEntrada,texto,strlen(texto),0);
+				send(sockEntrada,texto,120,0);
 				break;
-			}else{
+			}
+			else{
 				temp = h[llave].next;
 				while(temp!=NULL){
 					if(temp->id==ver){
@@ -243,7 +244,7 @@ void verRegistro(int sockEntrada,int vere){
 								sprintf(tamano,"%s",num);
 							}
 							send(sockEntrada,tamano,3,0);
-							send(sockEntrada,texto,strlen(texto),0);
+							send(sockEntrada,texto,120,0);
                         paso=1;
                         break;
 					}
@@ -256,7 +257,6 @@ void verRegistro(int sockEntrada,int vere){
         if(paso==0)
 		send(sockEntrada,"002",3,0);
 		send(sockEntrada,"No",2,0);
-		//printf("No existe registro, intenta de nuevo: ");
 	}while(paso==0);
     //free(temp);
 }
@@ -414,7 +414,7 @@ void mostrar(){
 	}while(m==0);
 }
 
-void borrar(int sockEntrada){
+void borrar(int sockEntrada,int IdSa){
     FILE *ap;
     ap = fopen("dataDogs.dat","r");
     if(ap == NULL){
@@ -425,105 +425,81 @@ void borrar(int sockEntrada){
         printf("No hay registros\n");
         return;
     }
-    printf("El numero de registros presentes es de %d, ingrese el numero del registro a borrar: ",TamanioArchivo(ap));
-	int rem;
+   	int rem;
 	int paso=0;
 	struct nodo * next;
 	struct nodo * temp;
 	temp = (struct nodo *)malloc(sizeof(struct nodo));
 	next = (struct nodo *)malloc(sizeof(struct nodo));
-	do{	
-	char idmas[9]="";
-	recv(sockEntrada,idmas,10,0);
 	int i = 0;
-	printf("-%s",idmas);
-	char idmas3[8]="";
-	for(i=1;i<9;i++){
-		idmas3[i-1] = idmas[i];
-	}
-	i=0;
-	while(idmas3[i]=='0'){
-	i = i+1;
-	}
-	int u = 8-i;
-	char idmas2[u];
-	int z=0;
-	for(u=i;u<8;u++){
-		idmas2[z] = idmas3[u];
-		z++;
-	}
-	char ult[sizeof(idmas2)];
-	for(i=0;i<sizeof(idmas2);i++){
-		ult[i] = idmas2[i];
-	}
-	sscanf(ult,"%d",&i);
-	printf("i %d \n",i);
-	rem = i;
-	int llave = (int)(rem/6000);
-	if(h[llave].id == rem){
-		temp = h[llave].next;
-		if(temp!=NULL){
-			strncpy(h[llave].nombre,temp->nombre,32);
-			strncpy(h[llave].tipo,temp->tipo,32);
-			h[llave].edad = temp->edad;
-			strncpy(h[llave].raza,temp->raza,16);
-			h[llave].estatura = temp->estatura;
-			h[llave].peso = temp->peso;
-			h[llave].sexo = temp->sexo;
-			h[llave].next = temp->next;
-			h[llave].id = temp->id;
-			h[llave].key = temp->key;
-		}else{
-			h[llave].key = 0;
-			h[llave].id = 0;
-		}
-		printf("borrado");
-		borrarArchivo(rem);
-		send(sockEntrada,"si",2,0);
-		paso=1;
-		break;
-	}else{
-		next = h[llave].next;
-		if(next!=NULL){
-			if(next->id==rem){
-				if(next->next!=NULL){
-					h[llave].next = next->next;
-				}else{
-					h[llave].next = NULL;
-				}
-				printf("borrado");
-				borrarArchivo(rem);
-				send(sockEntrada,"si",2,0);
-				paso=1;
+	do{	
+		i = IdSa;
+		printf("i %d \n",i);
+		rem = i;
+		int llave = (int)(rem/6000);
+		if(h[llave].id == rem){
+			temp = h[llave].next;
+			if(temp!=NULL){
+				strncpy(h[llave].nombre,temp->nombre,32);
+				strncpy(h[llave].tipo,temp->tipo,32);
+				h[llave].edad = temp->edad;
+				strncpy(h[llave].raza,temp->raza,16);
+				h[llave].estatura = temp->estatura;
+				h[llave].peso = temp->peso;
+				h[llave].sexo = temp->sexo;
+				h[llave].next = temp->next;
+				h[llave].id = temp->id;
+				h[llave].key = temp->key;
 			}else{
-				temp = h[llave].next;
-				next=next->next;	
-				while(next!=NULL){
-					if(next->id==rem){
-						if(next->next!=NULL){
-							temp->next = next->next;
-						}else{
-							temp->next = NULL;
-						}
-						paso=1;
-						printf("borrado");
-						borrarArchivo(rem);
-						send(sockEntrada,"si",2,0);
-						break;
+				h[llave].key = 0;
+				h[llave].id = 0;
+			}
+			printf("borrado");
+			borrarArchivo(rem);
+			send(sockEntrada,"si",2,0);
+			paso=1;
+			break;
+		}else{
+			next = h[llave].next;
+			if(next!=NULL){
+				if(next->id==rem){
+					if(next->next!=NULL){
+						h[llave].next = next->next;
 					}else{
-						temp = next;
-						if(next->next!=NULL){
-							next = next->next;
-						}else{
-							break;
-						}						
+						h[llave].next = NULL;
 					}
-				}
+					printf("borrado");
+					borrarArchivo(rem);
+					send(sockEntrada,"si",2,0);
+					paso=1;
+				}else{
+					temp = h[llave].next;
+					next=next->next;	
+					while(next!=NULL){
+						if(next->id==rem){
+							if(next->next!=NULL){
+								temp->next = next->next;
+							}else{
+								temp->next = NULL;
+							}
+							paso=1;
+							printf("borrado");
+							borrarArchivo(rem);
+							send(sockEntrada,"si",2,0);
+							break;
+						}else{
+							temp = next;
+							if(next->next!=NULL){
+								next = next->next;
+							}else{
+								break;
+							}						
+						}
+					}
 				}
 			}	
 		}
 		if(paso==0){
-		printf("No existe registro, intenta de nuevo: ");
 			send(sockEntrada,"no",2,0);		
 		}
 	}while(paso==0);
@@ -812,7 +788,6 @@ int entero(char num[8]){
 void* Servidor(void* arg){
 	FILE *ap;
 	char IP[30]="\0";
-	char sizeD[10];
 	char ceros[10]="";
 	char tam[2];
     char opcion[2];
@@ -831,7 +806,6 @@ void* Servidor(void* arg){
     int sockEntrada = *(int *) arg;
 	time_t tiempo = time(0);
     struct tm *tlocal = localtime(&tiempo);
-    char output[128];
     printf("Mensage... ");
     while(1){
 		read(sockEntrada,opcion,2);
@@ -885,6 +859,7 @@ void* Servidor(void* arg){
 				if(ap==NULL){perror("No se pudp crear el serverDogs.log: ");
 					exit(-1);
 				}
+				char output[128];
 				strftime(output,128,"|Fecha 20%y%m%d%H%M%S|cliente|",tlocal);
 				sprintf(IP,"%d",sockEntrada);
 				strcat(output,IP);
@@ -894,6 +869,8 @@ void* Servidor(void* arg){
         		printf("%s\n",output);
 				fwrite(output,sizeof(output),1,ap);
 			}else if(o == '2'){
+				
+				//ENVIAR TAMANO
 				printf("DOS");
 				ap = fopen("dataDogs.dat","r");
 				if(ap == NULL){
@@ -901,6 +878,7 @@ void* Servidor(void* arg){
 					exit(-1);
 				}
 				int size = TamanioArchivo(ap);
+				char sizeD[10];
 				sprintf(sizeD,"%d",size);
 				tamano = strlen(sizeD);
 				int p;
@@ -911,9 +889,11 @@ void* Servidor(void* arg){
 				}
 				strcat(ceros,sizeD);
 				send(sockEntrada,ceros,strlen(ceros),0);
-				//printf("\n%s-%s\n",id,tempo);
-				char idmas[9];
-				int i = recv(sockEntrada,idmas,9,0);
+				//FIN ENVIAR TAMANO
+
+				//RECIBIR ID
+				char idmas[8];
+				int i = recv(sockEntrada,idmas,8,0);
 				char idmas3[8];
 				for(i=1;i<9;i++){
 					idmas3[i-1] = idmas[i];
@@ -935,6 +915,10 @@ void* Servidor(void* arg){
 				}
 				sscanf(ult,"%d",&i);
 				printf("i %d \n",i);
+				//FIN RECIBIR ID
+
+				//ENIVAR TEXTO
+				char output[120];
 				memcpy(id,tempo,8);
 				IdSa = i;
 				printf("%d",IdSa);
@@ -951,16 +935,19 @@ void* Servidor(void* arg){
 				strcat(output,"|");
         		printf("%s\n",output);
 				r = fwrite(output,strlen(output),1,ap);
-				fflush(stdin);
-				if(r!=0){perror("No se pudo cargar el registro al serverDogs");}
+				fflush(stdout);
+				//if(r!=0){perror("No se pudo cargar el registro al serverDogs");}
+				//FIN ENVIAR TEXTO
+
 			}else if(o == '3'){
-				printf("DOS");
+				printf("TRES");
 				ap = fopen("dataDogs.dat","r");
 				if(ap == NULL){
 					perror("Can't open dataDogs.dat in verRegistro");
 					exit(-1);
 				}
 				int size = TamanioArchivo(ap);
+				char sizeD[10];
 				sprintf(sizeD,"%d",size);
 				tamano = strlen(sizeD);
 				int p;
@@ -971,9 +958,11 @@ void* Servidor(void* arg){
 				}
 				strcat(ceros,sizeD);
 				send(sockEntrada,ceros,strlen(ceros),0);
-				//printf("\n%s-%s\n",id,tempo);
-				char idmas[9];
-				int i = recv(sockEntrada,idmas,9,0);
+				//FIN ENVIAR TAMANO
+
+				//RECIBIR ID
+				char idmas[8];
+				int i = recv(sockEntrada,idmas,8,0);
 				char idmas3[8];
 				for(i=1;i<9;i++){
 					idmas3[i-1] = idmas[i];
@@ -994,7 +983,30 @@ void* Servidor(void* arg){
 					ult[i] = idmas2[i];
 				}
 				sscanf(ult,"%d",&i);
-				printf("i %d \n",i);
+				//printf("i %d \n",i);
+				fflush(stdout);
+				//FIN RECIBIR ID
+
+				//ENIVAR TEXTO
+				char output[120];
+				memcpy(id,tempo,8);
+				IdSa = i;
+				printf("%d",IdSa);
+				borrar(sockEntrada,i);
+				ap = fopen("serverDogs.log","a+");
+				if(ap==NULL){perror("No se pudo crear el serverDogs.log: ");
+					exit(-1);
+				}
+				strftime(output,128,"|Fecha 20%y%m%d%H%M%S|cliente|",tlocal);
+				sprintf(IP,"%d",sockEntrada);
+				strcat(output,IP);
+				strcat(output,"|Borrar Registro|");
+				strcat(output,ult);
+				strcat(output,"|");
+        		printf("%s\n",output);
+				r = fwrite(output,strlen(output),1,ap);
+				fflush(stdout);
+				
 			}else if(o == '4'){
 				printf("CUATRO");
 			}
@@ -1006,7 +1018,8 @@ void* Servidor(void* arg){
 }
 
 int main(){
-		int i;
+
+int i;
 	for(i=0;i<1721;i++){
 		h[i].key=0;
 	}
