@@ -69,7 +69,7 @@ int configuracaoCliente(){
 
 int entero(char num[8]){
 	int tam = strlen(num);
-	//printf("\nentero %s\n",num);
+	printf("\nentero %s\n",num);
 	int i, salida = 0;
 	int ayuda = 0;
 	for(i=0; i<tam; i++){
@@ -199,121 +199,105 @@ void Cliente(int clienteSockfd){
        }
        
 
-	    else if(strcmp(opcion, "20") == 0){
-	      	//RECIBIR TAMANO
-	      	char sizeD[10];
-	        recv(clienteSockfd,sizeD,10,0);
-	        char perro[8];
-	        char idmas3[11];
-			for(i=1;i<11;i++){
-				idmas3[i-1] = sizeD[i];
-			}
-			i=0;
-			while(idmas3[i]=='0'){
-				i = i+1;
-			}
-			int u = 10-i;
-			char idmas2[u];
-			int z=0;
-			for(u=i;u<10;u++){
-				idmas2[z] = idmas3[u];
-				z++;
-			}
-			char ult[sizeof(idmas2)];
-			for(i=0;i<(sizeof(idmas2) - 1);i++){
-				ult[i] = idmas2[i];
-			}
-			printf("Existen %s registros. ",ult);
-	        caracter = mygetch();
-	        //FIN RECIBIR TAMANO
-
-	        //ENVIAR ID
-	        int r=2;
-			do{
-		        getInput("Ingrese el id de la mascota a ver:", perro, 9);
-			    tam = strlen(perro);
-			    char id[8]="";
-				if(tam<8){
-					int p;
-					for(p=0;p<(8-tam);p++){
-						strcat(id,"0");
-					}
+      else if(strcmp(opcion, "20") == 0){
+      	char sizeD[10];
+        recv(clienteSockfd,sizeD,10,0);
+        char perro[8];
+        char idmas3[11];
+		for(i=1;i<11;i++){
+			idmas3[i-1] = sizeD[i];
+		}
+		i=0;
+		while(idmas3[i]=='0'){
+			i = i+1;
+		}
+		int u = 10-i;
+		char idmas2[u];
+		int z=0;
+		for(u=i;u<10;u++){
+			idmas2[z] = idmas3[u];
+			z++;
+		}
+		char ult[sizeof(idmas2)];
+		for(i=0;i<sizeof(idmas2);i++){
+			ult[i] = idmas2[i];
+		}
+		printf("Existen %s registros. ",ult);
+        caracter = mygetch();
+		int r=2;
+		do{
+	        getInput("Ingrese el id de la mascota a ver:", perro, 9);
+		    tam = strlen(perro);
+		    char id[10]="";
+			if(tam<8){
+				int p;
+				for(p=0;p<(8-tam);p++){
+					strcat(id,"0");
 				}
-				strcat(id,perro);
-		        //printf("ID  %s",id);
-		        fflush(stdout);
-		        write(clienteSockfd, id, 8);
-		        fflush(stdout);
-	        //FIN ENVIAR ID
-
-	        //RECIBIR TEXTO
-		        char texto[120];
-		        char tamano[3];
-		        recv(clienteSockfd,tamano,3,0);
-				recv(clienteSockfd,texto,120,0);
-			   	tam = entero(tamT);
-			   	printf("%s",texto);
-			}while(r==1);
-        	press();
-	        //FIN RECIBIR TEXTO
-	    }
+			}
+			strcat(id,perro);
+	        printf("ID  %s",id);
+	        write(clienteSockfd, id, 10);
+			recv(clienteSockfd,tamT,3,0);
+			char texto[120];
+			recv(clienteSockfd,texto,tam,0);
+			printf("%s",texto);
+			if(strcmp(texto,"No")!=0){
+				r=1;
+			}
+	        else{
+				printf(" existe. ");
+			}
+		}
+		while(r==2);
+        press();
+    }
     else if(strcmp(opcion, "30") == 0){
-        //RECIBIR TAMANO
-	      	char sizeD[10];
-	        recv(clienteSockfd,sizeD,10,0);
-	        char perro[8];
-	        char idmas3[11];
-			for(i=1;i<11;i++){
-				idmas3[i-1] = sizeD[i];
-			}
-			i=0;
-			while(idmas3[i]=='0'){
-				i = i+1;
-			}
-			int u = 10-i;
-			char idmas2[u];
-			int z=0;
-			for(u=i;u<10;u++){
-				idmas2[z] = idmas3[u];
-				z++;
-			}
-			char ult[sizeof(idmas2)];
-			for(i=0;i<(sizeof(idmas2) - 1);i++){
-				ult[i] = idmas2[i];
-			}
-			printf("Existen %s registros. ",ult);
-	        caracter = mygetch();
-	        //FIN RECIBIR TAMANO
-
-	        //ENVIAR ID
-	        int r=2;
-			do{
-		        getInput("Ingrese el id de la mascota a borrar:", perro, 9);
-			    tam = strlen(perro);
-			    char id[8]="";
-				if(tam<8){
-					int p;
-					for(p=0;p<(8-tam);p++){
-						strcat(id,"0");
-					}
-				}
-				strcat(id,perro);
-		        //printf("ID  %s",id);
-		        fflush(stdout);
-		        write(clienteSockfd, id, 8);
-		        fflush(stdout);
-	        //FIN ENVIAR ID
-
-	        //RECIBIR TEXTO
-		        char texto[120];
-		        char tamano[2];
-		        recv(clienteSockfd,texto,2,0);
-			   	//tam = entero(tamT);
-			   	printf("%s",texto);
-			   	fflush(stdout);
-			}while(r==1);
-        	press();
-	        //FIN RECIBIR TEXTO
+        char sizeD[10];   
+        recv(clienteSockfd,sizeD,10,0);
+        char perro[8];
+        char idmas3[11];
+		for(i=1;i<11;i++){
+			idmas3[i-1] = sizeD[i];
+		}
+		i=0;
+		while(idmas3[i]=='0'){
+			i = i+1;
+		}
+		int u = 10-i;
+		char idmas2[u];
+		int z=0;
+		for(u=i;u<10;u++){
+			idmas2[z] = idmas3[u];
+			z++;
+		}
+		char ult[sizeof(idmas2)];
+		for(i=0;i<sizeof(idmas2);i++){
+			ult[i] = idmas2[i];
+		}
+        //printf("SIZE %s \n", ult);
+        caracter = mygetch();
+        int r=2;
+        do{
+		  	char idB[10]="";
+		  	printf("Existen %s registros. ",ult);
+          	getInput("Ingrese el id de la mascota a borrar:", perro, 9);
+          	tam = strlen(perro);
+          	if(tam<8){
+          		int p;
+          		for(p=0;p<(8-tam);p++){
+          		strcat(idB,"0");
+          	}
+       	}
+        strcat(idB,perro);
+        printf("ID  %s",idB);
+        write(clienteSockfd, idB, 10);
+		char resp[2];
+		recv(clienteSockfd,resp,2,0);
+		fflush(stdout);
+		if(strcmp(resp,"si")==0)break;
+		}while(1);
+		press();
       }else if(strcmp(opcion, "4") == 0){
            
            char perro[32];

@@ -414,7 +414,7 @@ void mostrar(){
 	}while(m==0);
 }
 
-void borrar(){
+void borrar(int sockEntrada){
     FILE *ap;
     ap = fopen("dataDogs.dat","r");
     if(ap == NULL){
@@ -433,7 +433,32 @@ void borrar(){
 	temp = (struct nodo *)malloc(sizeof(struct nodo));
 	next = (struct nodo *)malloc(sizeof(struct nodo));
 	do{	
-	scanf("%d",&rem);
+	char idmas[9]="";
+	recv(sockEntrada,idmas,10,0);
+	int i = 0;
+	printf("-%s",idmas);
+	char idmas3[8]="";
+	for(i=1;i<9;i++){
+		idmas3[i-1] = idmas[i];
+	}
+	i=0;
+	while(idmas3[i]=='0'){
+	i = i+1;
+	}
+	int u = 8-i;
+	char idmas2[u];
+	int z=0;
+	for(u=i;u<8;u++){
+		idmas2[z] = idmas3[u];
+		z++;
+	}
+	char ult[sizeof(idmas2)];
+	for(i=0;i<sizeof(idmas2);i++){
+		ult[i] = idmas2[i];
+	}
+	sscanf(ult,"%d",&i);
+	printf("i %d \n",i);
+	rem = i;
 	int llave = (int)(rem/6000);
 	if(h[llave].id == rem){
 		temp = h[llave].next;
@@ -452,7 +477,9 @@ void borrar(){
 			h[llave].key = 0;
 			h[llave].id = 0;
 		}
+		printf("borrado");
 		borrarArchivo(rem);
+		send(sockEntrada,"si",2,0);
 		paso=1;
 		break;
 	}else{
@@ -464,7 +491,9 @@ void borrar(){
 				}else{
 					h[llave].next = NULL;
 				}
+				printf("borrado");
 				borrarArchivo(rem);
+				send(sockEntrada,"si",2,0);
 				paso=1;
 			}else{
 				temp = h[llave].next;
@@ -477,7 +506,9 @@ void borrar(){
 							temp->next = NULL;
 						}
 						paso=1;
+						printf("borrado");
 						borrarArchivo(rem);
+						send(sockEntrada,"si",2,0);
 						break;
 					}else{
 						temp = next;
@@ -491,7 +522,10 @@ void borrar(){
 				}
 			}	
 		}
-		if(paso==0)printf("No existe registro, intenta de nuevo: ");
+		if(paso==0){
+		printf("No existe registro, intenta de nuevo: ");
+			send(sockEntrada,"no",2,0);		
+		}
 	}while(paso==0);
 }
 
@@ -682,8 +716,8 @@ void borrarArchivo(int aEliminar){
         remove("dataDogs.tmp");
         fclose(fp);
         fclose(tmp);
-        printf("El registro ha sido exitosamente eliminado.\n");
     }
+	printf("archivo borrado exitosamente");
 }
 
 int mygetch(){
@@ -877,13 +911,32 @@ void* Servidor(void* arg){
 				}
 				strcat(ceros,sizeD);
 				send(sockEntrada,ceros,strlen(ceros),0);
-				printf("\n%s-%s\n",id,tempo);
-				recv(sockEntrada,tempo,10,0);
+				//printf("\n%s-%s\n",id,tempo);
+				char idmas[9];
+				int i = recv(sockEntrada,idmas,9,0);
+				char idmas3[8];
+				for(i=1;i<9;i++){
+					idmas3[i-1] = idmas[i];
+				}
+				i=0;
+				while(idmas3[i]=='0'){
+					i = i+1;
+				}
+				int u = 8-i;
+				char idmas2[u];
+				int z=0;
+				for(u=i;u<8;u++){
+					idmas2[z] = idmas3[u];
+					z++;
+				}
+				char ult[sizeof(idmas2)];
+				for(i=0;i<sizeof(idmas2);i++){
+					ult[i] = idmas2[i];
+				}
+				sscanf(ult,"%d",&i);
+				printf("i %d \n",i);
 				memcpy(id,tempo,8);
-				printf("tem%s ",tempo);
-				printf("-id%s",id);
-				//deberia ir el id pero no funciona!!!!!!!!!!!!!!!!!!!
-				IdSa = entero("42000");
+				IdSa = i;
 				printf("%d",IdSa);
 				verRegistro(sockEntrada,IdSa);
 				ap = fopen("serverDogs.log","a+");
@@ -894,13 +947,54 @@ void* Servidor(void* arg){
 				sprintf(IP,"%d",sockEntrada);
 				strcat(output,IP);
 				strcat(output,"|Ver Registro|");
-				strcat(output,"42000");
+				strcat(output,ult);
 				strcat(output,"|");
         		printf("%s\n",output);
 				r = fwrite(output,strlen(output),1,ap);
+				fflush(stdin);
 				if(r!=0){perror("No se pudo cargar el registro al serverDogs");}
 			}else if(o == '3'){
-				printf("TRES");
+				printf("DOS");
+				ap = fopen("dataDogs.dat","r");
+				if(ap == NULL){
+					perror("Can't open dataDogs.dat in verRegistro");
+					exit(-1);
+				}
+				int size = TamanioArchivo(ap);
+				sprintf(sizeD,"%d",size);
+				tamano = strlen(sizeD);
+				int p;
+				if(tamano<10){
+					for(p=0;p<(10-tamano);p++){
+						strcat(ceros,"0");
+					}
+				}
+				strcat(ceros,sizeD);
+				send(sockEntrada,ceros,strlen(ceros),0);
+				//printf("\n%s-%s\n",id,tempo);
+				char idmas[9];
+				int i = recv(sockEntrada,idmas,9,0);
+				char idmas3[8];
+				for(i=1;i<9;i++){
+					idmas3[i-1] = idmas[i];
+				}
+				i=0;
+				while(idmas3[i]=='0'){
+					i = i+1;
+				}
+				int u = 8-i;
+				char idmas2[u];
+				int z=0;
+				for(u=i;u<8;u++){
+					idmas2[z] = idmas3[u];
+					z++;
+				}
+				char ult[sizeof(idmas2)];
+				for(i=0;i<sizeof(idmas2);i++){
+					ult[i] = idmas2[i];
+				}
+				sscanf(ult,"%d",&i);
+				printf("i %d \n",i);
 			}else if(o == '4'){
 				printf("CUATRO");
 			}
@@ -938,6 +1032,8 @@ int main(){
     server.sin_addr.s_addr = htonl(INADDR_ANY);
     server.sin_port = htons(6881);
 	bzero(server.sin_zero,8);
+	int one = 1; 
+	setsockopt(serverfd, SOL_SOCKET, SO_REUSEADDR, &one, sizeof(one));
 	r = bind(serverfd, (struct sockaddr *) & server, sizeof (server));
     if ( r < 0){
       printf("Error en bind\n");
