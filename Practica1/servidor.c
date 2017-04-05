@@ -813,43 +813,10 @@ void* Servidor(void* arg){
 		sleep(1);
 			if(o == '1'){
                 printf("UNO");
-				//nombre
-				recv(sockEntrada,tam,2,0);
-				tamano = entero(tam);
-				recv(sockEntrada,nombre,tamano,0);
-				//tipo
-				recv(sockEntrada,tam,2,0);
-				tamano = entero(tam);
-				recv(sockEntrada,tipo,tamano,0);
-				//edad
-				recv(sockEntrada,tam,2,0);
-				tamano = entero(tam);
-				recv(sockEntrada,edad,tamano,0);
-				//raza
-				recv(sockEntrada,tam,2,0);
-				tamano = entero(tam);
-				recv(sockEntrada,raza,tamano,0);
-				//estatura
-				recv(sockEntrada,tam,2,0);
-				tamano = entero(tam);
-				recv(sockEntrada,estatura,tamano,0);
-				//peso
-				recv(sockEntrada,tam,2,0);
-				tamano = entero(tam);
-				recv(sockEntrada,peso,tamano,0);
-				//sexo
-				recv(sockEntrada,sexo,2,0);
 				struct nodo *temp;
-				temp = malloc(sizeof(struct nodo));
-				strcat(nombre," ");
-				strncpy(temp->nombre,nombre,32);
+		   		temp = malloc(sizeof(struct nodo));
+				recv(sockEntrada,temp,sizeof(struct nodo),0);
 				key = convertir(temp->nombre);
-				strncpy(temp->tipo,tipo,32);
-				temp->edad = entero(edad);
-				strncpy(temp->raza,raza,16);
-				temp->estatura = entero(estatura);
-				temp->peso = entero(peso);
-				temp->sexo = 'M';
 				temp->key = key;
 				temp->id=0;
 				calcular(temp);
@@ -864,10 +831,10 @@ void* Servidor(void* arg){
 				sprintf(IP,"%d",sockEntrada);
 				strcat(output,IP);
 				strcat(output,"|Ingresar|");
-				strcat(output,nombre);
+				strcat(output,temp->nombre);
 				strcat(output,"|");
         		printf("%s\n",output);
-				fwrite(output,sizeof(output),1,ap);
+				//fwrite(output,sizeof(output),1,ap);
 			}else if(o == '2'){
 				
 				//ENVIAR TAMANO

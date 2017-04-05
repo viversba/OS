@@ -106,100 +106,45 @@ void Cliente(int clienteSockfd){
 		char buffer_para_servidor[256];
 
        	if(strcmp(opcion, "10") == 0){
-           char nombre[32];
-           caracter = mygetch();
-		   //nombre
-           getInput("Ingrese el nombre:", nombre, 33);
-		   tam = strlen(nombre);
-		   if(strlen(nombre)<10){
-			write(clienteSockfd,"0",1);
-			sprintf(tamano,"%d",tam);
-			write(clienteSockfd,tamano,1);
-		   }else{
-			sprintf(tamano,"%d",tam);
-			write(clienteSockfd,tamano,2);
+		   char nombre[32]="\0";
+		   char tipo[32]="\0";
+		   int edad=0;
+		   char raza[16]="\0";
+		   int estatura=0;
+		   int peso=0;
+		   char sexo='\0';
+           struct nodo *temp;
+		   temp = malloc(sizeof(struct nodo));
+		   printf("Ingrese nombre:\n");
+		   scanf("%s",nombre);
+		   strncpy(temp->nombre,nombre,32);
+		   printf("Ingrese tipo:\n");
+		   scanf("%s",tipo);
+		   strncpy(temp->tipo,tipo,32);
+		   printf("Ingrese edad:\n");
+		   scanf("%i",&edad);
+		   temp->edad=edad;
+		   printf("Ingrese raza:\n");
+		   scanf("%s",raza);
+		   strncpy(temp->raza,raza,16);
+		   printf("Ingrese estatura:\n");
+		   scanf("%i",&estatura);
+		   temp->estatura=estatura;
+		   printf("Ingrese peso:\n");
+		   scanf("%i",&peso);
+		   temp->peso=peso;
+		   printf("Ingrese sexo:  (H|M)\n");
+		   scanf("%s",&sexo);
+		   while( sexo != 'H' && sexo != 'M' ){
+		      printf("\nCaracter no valido.\n Por favor, intente de nuevo: ");
+		      scanf("%c", &sexo);
 		   }
-           write(clienteSockfd, nombre,strlen(nombre));
-		   //tipo
-           char tipo[32];
-           getInput("Ingrese el tipo:", tipo, 33);
-		   tam = strlen(tipo);
-		   if(strlen(tipo)<10){
-			write(clienteSockfd,"0",1);
-			sprintf(tamano,"%d",tam);
-			write(clienteSockfd,tamano,1);
-		   }else{
-			sprintf(tamano,"%d",tam);
-			write(clienteSockfd,tamano,2);
-		   }
-           write(clienteSockfd, tipo, strlen(tipo));
-		   //edad
-           char edad[2];
-           getInput("Ingrese el edad:", edad, 3);
-		   tam = strlen(edad);
-		   if(strlen(edad)<10){
-			write(clienteSockfd,"0",1);
-			sprintf(tamano,"%d",tam);
-			write(clienteSockfd,tamano,1);
-		   }else{
-			sprintf(tamano,"%d",tam);
-			write(clienteSockfd,tamano,2);
-		   }
-		   write(clienteSockfd, edad, strlen(edad));
-		   //raza
-           char raza[16];
-           getInput("Ingrese la raza:", raza, 17);
-		   tam = strlen(raza);
-		   if(strlen(raza)<10){
-			write(clienteSockfd,"0",1);
-			sprintf(tamano,"%d",tam);
-			write(clienteSockfd,tamano,1);
-		   }else{
-			sprintf(tamano,"%d",tam);
-			write(clienteSockfd,tamano,2);
-		   }
-		   write(clienteSockfd, raza, strlen(raza));
-		   //estatura
-           char estatura[3];
-           getInput("Ingrese el estatura:", estatura, 3);
-		   tam = strlen(estatura);
-		   if(strlen(estatura)<10){
-			write(clienteSockfd,"0",1);
-			sprintf(tamano,"%d",tam);
-			write(clienteSockfd,tamano,1);
-		   }else{
-			sprintf(tamano,"%d",tam);
-			write(clienteSockfd,tamano,2);
-		   }
-		   write(clienteSockfd, estatura, strlen(estatura));
-		   //peso
-           char peso[2];
-           getInput("Ingrese el peso:", peso, 3);
-		   tam = strlen(peso);
-		   if(strlen(peso)<10){
-			write(clienteSockfd,"0",1);
-			sprintf(tamano,"%d",tam);
-			write(clienteSockfd,tamano,1);
-		   }else{
-			sprintf(tamano,"%d",tam);
-			write(clienteSockfd,tamano,2);
-		   }
-		   write(clienteSockfd, peso, strlen(peso));
-           char sexo[2];
-           getInput("Ingrese el sexo:", sexo, 3);
-		   write(clienteSockfd, sexo, strlen(sexo));
-           /*while( sexo != 'H' && sexo != 'M' ){
-               printf("\nCaracter no valido.\n Por favor, intente de nuevo: ");
-               scanf("%s", &sexo);
-           }*/
-
+		   temp->sexo=sexo;
+		   write(clienteSockfd,temp,sizeof(struct nodo));
            recv(clienteSockfd,confirmacion,17,0);
 		   printf("\n%s\n",confirmacion);
            press();
-       }
-       
-
-	    else if(strcmp(opcion, "20") == 0){
+       }else if(strcmp(opcion, "20") == 0){
 	      	//RECIBIR TAMANO
 	      	char sizeD[10];
 	        recv(clienteSockfd,sizeD,10,0);
