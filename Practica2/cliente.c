@@ -117,6 +117,13 @@ void Cliente(int clienteSockfd){
 		   temp = malloc(sizeof(struct nodo));
 		   printf("Ingrese nombre:\n");
 		   scanf("%s",nombre);
+		   int u;
+		   for (u=0;u<32;u++){
+     	   		if(nombre[u] == '\n'){
+        	    	nombre[u] = ' ';
+        		}
+    	   }
+		   strcat(nombre, " ");
 		   strncpy(temp->nombre,nombre,32);
 		   printf("Ingrese tipo:\n");
 		   scanf("%s",tipo);

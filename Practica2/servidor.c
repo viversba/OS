@@ -629,12 +629,8 @@ void save(void *ap)
     }
 };
 
-void generar()
+void generar(int reg)
 {
-
-    printf("¿Cuantos registros aleatorios desea Crear?: ");
-    int reg;
-    scanf("%i", &reg);
     struct nodo *perro;
     perro = malloc(sizeof(struct nodo));
     int count = 0;
@@ -866,7 +862,7 @@ void *Servidor(void *arg)
 		sleep(1);
 		if (o == '1')
 		{
-			printf("\n2\n");
+			printf("\n1\n");
 			struct nodo *temp;
 			temp = malloc(sizeof(struct nodo));
 			recv(sockEntrada, temp, sizeof(struct nodo), 0);
@@ -1081,6 +1077,11 @@ void *Servidor(void *arg)
 		{
 			printf("\n5\n");
 			pthread_exit((void *)0);
+		}
+		else if (o == '6')
+		{
+			printf("\n6\n");
+			generar(100000);
 		}
 	//printf("LLAVE %d", llave);
     }
