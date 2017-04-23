@@ -29,6 +29,7 @@ void cargarHash();
 void press();
 void borrarArchivo();
 void escribirHash();
+void historiaClinica();
 
 struct names
 {
@@ -58,7 +59,7 @@ struct nodo
     struct nodo *next;
     struct nodo * final;
 } nodo;
-struct nodo h[1721];
+struct nodo h[2029];
 
 void verRegistro(int sockEntrada, int vere)
 {
@@ -78,7 +79,7 @@ void verRegistro(int sockEntrada, int vere)
     char raza[16];
     int estatura;
     char esta[3];
-    int peso;
+    float peso;
     char pe[3];
     char sexo;
     char texto[120] = "\0";
@@ -94,51 +95,7 @@ void verRegistro(int sockEntrada, int vere)
 		{
 			if (h[llave].id == ver)
 			{
-				id = h[llave].id;
-				sprintf(texto, "%d", id);
-				strcat(texto, "  ");
-				strncpy(nombre, h[llave].nombre, 32);
-				strcat(texto, nombre);
-				strcat(texto, "  ");
-				strncpy(tipo, h[llave].tipo, 32);
-				strcat(texto, tipo);
-				strcat(texto, "  ");
-				edad = h[llave].edad;
-				sprintf(ed, "%d", edad);
-				strcat(texto, ed);
-				strcat(texto, "  ");
-				strncpy(raza, h[llave].raza, 16);
-				strcat(texto, raza);
-				strcat(texto, "  ");
-				estatura = h[llave].estatura;
-				sprintf(esta, "%d", estatura);
-				strcat(texto, esta);
-				strcat(texto, "  ");
-				peso = h[llave].peso;
-				sprintf(pe, "%d", peso);
-				strcat(texto, pe);
-				strcat(texto, "  ");
-				sexo = h[llave].sexo;
-				strcat(texto, &sexo);
-				strcat(texto, "  ");
-				tam = strlen(texto);
-				sprintf(num, "%d", tam);
-				if (tam < 10)
-				{
-					sprintf(tamano, "%s", "00");
-					strcat(tamano, num);
-				}
-				else if (tam < 100)
-				{
-					sprintf(tamano, "%s", "0");
-					strcat(tamano, num);
-				}
-				else
-				{
-					sprintf(tamano, "%s", num);
-				}
-				//send(sockEntrada, tamano, 3, 0);
-				send(sockEntrada, texto, 120, 0);
+				historiaClinica(sockEntrada,h[llave].nombre,h[llave].id);
 				break;
 			}
 			else
@@ -148,51 +105,7 @@ void verRegistro(int sockEntrada, int vere)
 				{
 					if (temp->id == ver)
 					{
-					id = temp->id;
-					sprintf(texto, "%d", id);
-					strcat(texto, "  ");
-					strncpy(nombre, temp->nombre, 32);
-					strcat(texto, nombre);
-					strcat(texto, "  ");
-					strncpy(tipo, temp->tipo, 32);
-					strcat(texto, tipo);
-					strcat(texto, "  ");
-					edad = temp->edad;
-					sprintf(ed, "%d", edad);
-					strcat(texto, ed);
-					strcat(texto, "  ");
-					strncpy(raza, temp->raza, 16);
-					strcat(texto, raza);
-					strcat(texto, "  ");
-					estatura = temp->estatura;
-					sprintf(esta, "%d", estatura);
-					strcat(texto, esta);
-					strcat(texto, "  ");
-					peso = temp->peso;
-					sprintf(pe, "%d", peso);
-					strcat(texto, pe);
-					strcat(texto, "  ");
-					sexo = temp->sexo;
-					strcat(texto, &sexo);
-					strcat(texto, "  ");
-					tam = strlen(texto);
-					sprintf(num, "%d", tam);
-					if (tam < 10)
-					{
-						sprintf(tamano, "%s", "00");
-						strcat(tamano, num);
-					}
-					else if (tam < 100)
-					{
-						sprintf(tamano, "%s", "0");
-						strcat(tamano, num);
-					}
-					else
-					{
-						sprintf(tamano, "%s", num);
-					}
-					//send(sockEntrada, tamano, 3, 0);
-					send(sockEntrada, texto, 120, 0);
+					historiaClinica(sockEntrada,temp->nombre,temp->id);
 					paso = 1;
 					break;
 					}
@@ -210,6 +123,46 @@ void verRegistro(int sockEntrada, int vere)
     } while (paso == 0);
     //free(temp);
 }
+
+void historiaClinica(int sockEntrada,char nombre[32],int id){
+	char NombreH[40] = "Historia";
+	char nombreS[50] = "Historia Clinica: ";
+	char texto[200] = "\0";
+	char idS[8];
+	char hist[1000];
+	sprintf(idS,"%d",id);
+	strcat(NombreH,idS);
+	strcat(NombreH,".txt");
+	FILE *ap;
+	ap = fopen(NombreH,"r");
+	if(ap==NULL){
+		printf("No existe");
+		strcat(nombreS,nombre);
+		ap = fopen(NombreH,"w+");
+		fwrite(nombreS,strlen(nombreS),1,ap);
+		//fclose(ap);
+		send(sockEntrada, NombreH, 120, 0);
+		strncpy(hist,nombreS,50);
+		send(sockEntrada, hist, 1000, 0);
+		recv(sockEntrada,hist,1000,0);
+		printf("%s",hist);
+	}else{
+		
+		printf("existe");
+		fread(hist,sizeof(hist),1,ap);
+		//fclose(ap);
+		send(sockEntrada, NombreH, 120, 0);
+		send(sockEntrada, hist, 1000, 0);
+		recv(sockEntrada,hist,1000,0);
+	}
+	fclose(ap);
+	FILE *apf;
+	apf = fopen(NombreH,"w+");
+	fwrite(hist,strlen(hist),1, apf);
+	fclose(apf);
+	int tama = sizeof(apf);
+	fflush(stdout);
+	}
 
 void calcular(struct nodo *next){
 
@@ -235,10 +188,10 @@ void calcular(struct nodo *next){
     }
     strncpy(raza, next->raza, 16);
     int estatura = next->estatura;
-    int peso = next->peso;
+    float peso = next->peso;
     char sexo = next->sexo;
     int key = next->key;
-    int llave = key % 1721;
+    int llave = key % 2029;
     int i;
     struct nodo *datos;
     datos = (struct nodo *)malloc(sizeof(struct nodo));
@@ -297,7 +250,7 @@ void calcular(struct nodo *next){
 	    }
 	    else
 	    {
-		if (llave == 1720)
+		if (llave == 2029)
 		{
 		    llave = 0;
 		}
@@ -330,13 +283,13 @@ void mostrar(int sockEntrada, char perri[32])
 			name[o] = toupper(perri[o]);
 		}
 		int key = convertir(name);
-		int llave = key % 1721;
+		int llave = key % 2029;
 		strcat(name, " ");
 		char perro[200];
 		if (strcmp(name, "TODOS ") == 0)
 		{
 			printf("\nPosicion\tCodigo\t\tId\t\tnombre\n");
-			for (i = 0; i < 1721; i++)
+			for (i = 0; i < 2029; i++)
 			{
 				if ((h[i].key != 0))
 				{
@@ -387,7 +340,7 @@ void mostrar(int sockEntrada, char perri[32])
 				}
 				else
 				{
-					if (llave == 1720)
+					if (llave == 2029)
 					{
 						llave = 0;
 					}
@@ -434,7 +387,7 @@ void borrar(int sockEntrada, int IdSa)
     do
     {
 	i = IdSa;
-	printf("i %d \n", i);
+	//printf("i %d \n", i);
 	rem = i;
 	int llave = (int)(rem / 6000);
 	if (h[llave].id == rem)
@@ -458,7 +411,7 @@ void borrar(int sockEntrada, int IdSa)
 		h[llave].key = 0;
 		h[llave].id = 0;
 	    }
-	    printf("borrado");
+	    //printf("borrado");
 	    borrarArchivo(rem);
 	    send(sockEntrada, "si", 2, 0);
 	    paso = 1;
@@ -479,7 +432,7 @@ void borrar(int sockEntrada, int IdSa)
 		    {
 			h[llave].next = NULL;
 		    }
-		    printf("borrado");
+		    //printf("borrado");
 		    borrarArchivo(rem);
 		    send(sockEntrada, "si", 2, 0);
 		    paso = 1;
@@ -501,7 +454,7 @@ void borrar(int sockEntrada, int IdSa)
 				temp->next = NULL;
 			    }
 			    paso = 1;
-			    printf("borrado");
+			    //printf("borrado");
 			    borrarArchivo(rem);
 			    send(sockEntrada, "si", 2, 0);
 			    break;
@@ -801,7 +754,7 @@ void escribirHash()
     {
 	perror("Couldn't open dataDogs.dat in escribirHash");
     }
-    for (i = 0; i < 1721; i++)
+    for (i = 0; i < 2029; i++)
     {
 	if ((h[i].key != 0))
 	{
@@ -855,27 +808,32 @@ void *Servidor(void *arg)
     time_t tiempo = time(0);
     struct tm *tlocal = localtime(&tiempo);
     printf("Mensage... ");
+	struct nodo *temp;
     while (1)
     {
 		read(sockEntrada, opcion, 2);
 		o = opcion[0];
-		sleep(1);
 		if (o == '1')
 		{
-			printf("\n1\n");
-			struct nodo *temp;
+			//printf("\n1\n");
 			temp = malloc(sizeof(struct nodo));
+			int ta=sizeof(struct nodo);
+			//printf("datos -%d",ta);
 			recv(sockEntrada, temp, sizeof(struct nodo), 0);
+			//printf("Recibido");
+			fflush(stdout);
 			key = convertir(temp->nombre);
 			temp->key = key;
 			temp->id = 0;
 			calcular(temp);
 			save(temp);
+			//printf("guardo");
+			fflush(stdout);
 			write(sockEntrada, "Registro guardado", 17);
 			ap = fopen("serverDogs.log", "a+");
 			if (ap == NULL)
 			{
-			perror("No se pudp crear el serverDogs.log: ");
+			perror("No se pudo crear el serverDogs.log: ");
 			exit(-1);
 			}
 			char output[128];
@@ -885,14 +843,14 @@ void *Servidor(void *arg)
 			strcat(output, "|Ingresar|");
 			strcat(output, temp->nombre);
 			strcat(output, "|");
-			printf("%s\n", output);
+			//printf("%s\n", output);
 			fwrite(output,sizeof(output),1, ap);
 			fclose(ap);
 		}
 		else if (o == '2')
 		{
 
-			printf("\n2\n");
+			//printf("\n2\n");
 			char ceros[10] = "";
 			//ENVIAR TAMANO
 			ap = fopen("dataDogs.dat", "r");
@@ -916,7 +874,7 @@ void *Servidor(void *arg)
 			}
 			strcat(ceros, sizeD);
 			send(sockEntrada, ceros, 10, 0);
-			printf("\ntamaño %s \n", ceros);
+			//printf("\ntamaño %s \n", ceros);
 			//FIN ENVIAR TAMANO
 
 			//RECIBIR ID
@@ -926,40 +884,26 @@ void *Servidor(void *arg)
 				int i = recv(sockEntrada, idmas, 8, 0);
 				//printf("\n%s\n", idmas);
 				char idmas3[8];
-				for (i = 1; i < 9; i++)
-				{
-					idmas3[i - 1] = idmas[i];
+				i=0;
+				while(idmas[i]=='0'){
+					i++;
 				}
-				i = 0;
-				while (idmas3[i] == '0')
-				{
-					i = i + 1;
+				int q;
+				for (q = i; q < 9; q++){
+					idmas3[q-i] = idmas[q];
 				}
-				int u = 8 - i;
-				char idmas2[u];
-				int z = 0;
-				for (u = i; u < 8; u++)
-				{
-					idmas2[z] = idmas3[u];
-					z++;
-				}
-				char ult[sizeof(idmas2)];
-				for (i = 0; i < sizeof(idmas2); i++)
-				{
-					ult[i] = idmas2[i];
-				}
-				sscanf(ult, "%d", &i);
-				//printf("i %d \n", i);
+
+				sscanf(idmas3, "%d", &i);
+				printf("i %d \n", i);
 				//FIN RECIBIR ID
 
 			//ENVIAR TEXTO
 				memcpy(id, tempo, 8);
 				IdSa = i;
-				printf("%d", IdSa);
 				verRegistro(sockEntrada, IdSa);
 				recv(sockEntrada, paso, 2, 0);
 			} while (strcmp(paso, "No") == 0);
-			ap = fopen("serverDogs.log", "w+");
+			ap = fopen("serverDogs.log", "a+");
 			if (ap == NULL)
 			{
 				perror("No se pudo crear el serverDogs.log: ");
@@ -974,7 +918,7 @@ void *Servidor(void *arg)
 			strcat(output, "|Ver Registro|");
 			strcat(output, idS);
 			strcat(output, "|");
-			printf("%s\n", output);
+			//printf("%s\n", output);
 			r = fwrite(output,sizeof(output),1, ap);
 			fflush(stdout);
 			fclose(ap);
@@ -984,7 +928,7 @@ void *Servidor(void *arg)
 		else if (o == '3')
 		{
 			char ceros[10] = "";
-			printf("\n3\n");
+			//printf("\n3\n");
 			ap = fopen("dataDogs.dat", "r");
 			if (ap == NULL)
 			{
@@ -1040,11 +984,11 @@ void *Servidor(void *arg)
 			//FIN RECIBIR ID
 
 			//ENIVAR TEXTO
-			char output[120];
 			memcpy(id, tempo, 8);
 			IdSa = i;
-			printf("%d", IdSa);
+			//printf("%d", IdSa);
 			borrar(sockEntrada, i);
+			char output[120];
 			ap = fopen("serverDogs.log", "a+");
 			if (ap == NULL)
 			{
@@ -1059,28 +1003,44 @@ void *Servidor(void *arg)
 			strcat(output, "|");
 			//printf("%s\n",output);
 			r = fwrite(output, sizeof(output), 1, ap);
-			printf("\nPerro eliminado exitosamente\n");
+			//printf("\nPerro eliminado exitosamente\n");
 			fflush(stdout);
 			fclose(ap);
 		}
 		else if (o == '4')
 		{
-
-			printf("\n4\n");
+			//printf("\n4\n");
 			char perro[32];
 			recv(sockEntrada, perro, 32, 0);
 			//printf("%s \n", perro);
 			mostrar(sockEntrada, perro);
 			fflush(stdout);
+			char output[120];
+			ap = fopen("serverDogs.log", "a+");
+			if (ap == NULL)
+			{
+				perror("No se pudo crear el serverDogs.log: ");
+				exit(-1);
+			}
+			strftime(output, 128, "|Fecha 20%y%m%d%H%M%S|cliente|", tlocal);
+			sprintf(IP, "%d", sockEntrada);
+			strcat(output, IP);
+			strcat(output, "|BUscar Registro|");
+			strcat(output, perro);
+			strcat(output, "|");
+			//printf("%s\n",output);
+			r = fwrite(output, sizeof(output), 1, ap);
+			fflush(stdout);
+			fclose(ap);
 		}
 		else if (o == '5')
 		{
-			printf("\n5\n");
+			//printf("\n5\n");
 			pthread_exit((void *)0);
 		}
 		else if (o == '6')
 		{
-			printf("\n6\n");
+			//printf("\n6\n");
 			generar(100000);
 		}
 	//printf("LLAVE %d", llave);
@@ -1094,7 +1054,7 @@ int main()
 {
 
     int i;
-    for (i = 0; i < 1721; i++)
+    for (i = 0; i < 2029; i++)
     {
 	h[i].key = 0;
     }
@@ -1138,24 +1098,27 @@ int main()
 	printf("Error en el listen\n");
 	exit(1);
     }
-    while (1)
-    {
-	pthread_t thread;
-	size = sizeof(cliente);
-	clientefd = accept(serverfd, (struct sockaddr *)&cliente, &size);
-	if (clientefd < 0)
-	{
-	    printf("Error en el accept\n");
-	    exit(1);
-	}
-	r = pthread_create(&thread, NULL, Servidor, &clientefd);
-	if (r != 0)
-	{
-	    printf("Erro na Thread\n");
-	    exit(1);
-	}
+	int NumCli = 0;
+    while (1){
+		if(NumCli<33){
+			pthread_t thread;
+		size = sizeof(cliente);
+		clientefd = accept(serverfd, (struct sockaddr *)&cliente, &size);
+		if (clientefd < 0)
+		{
+			printf("Error en el accept\n");
+			exit(1);
+		}
+		r = pthread_create(&thread, NULL, Servidor, &clientefd);
+		if (r != 0)
+		{
+			printf("Erro na Thread\n");
+			exit(1);
+		}
 
-	pthread_detach(thread);
+		pthread_detach(thread);
+		NumCli+=1;
+		}
     }
     exit(0);
 }

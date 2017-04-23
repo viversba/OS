@@ -111,18 +111,12 @@ void Cliente(int clienteSockfd){
 		   int edad=0;
 		   char raza[16]="\0";
 		   int estatura=0;
-		   int peso=0;
+		   float peso=0;
 		   char sexo='\0';
            struct nodo *temp;
 		   temp = malloc(sizeof(struct nodo));
 		   printf("Ingrese nombre:\n");
 		   scanf("%s",nombre);
-		   int u;
-		   for (u=0;u<32;u++){
-     	   		if(nombre[u] == '\n'){
-        	    	nombre[u] = ' ';
-        		}
-    	   }
 		   strcat(nombre, " ");
 		   strncpy(temp->nombre,nombre,32);
 		   printf("Ingrese tipo:\n");
@@ -138,7 +132,7 @@ void Cliente(int clienteSockfd){
 		   scanf("%i",&estatura);
 		   temp->estatura=estatura;
 		   printf("Ingrese peso:\n");
-		   scanf("%i",&peso);
+		   scanf("%f",&peso);
 		   temp->peso=peso;
 		   printf("Ingrese sexo:  (H|M)\n");
 		   scanf("%s",&sexo);
@@ -147,9 +141,13 @@ void Cliente(int clienteSockfd){
 		      scanf("%c", &sexo);
 		   }
 		   temp->sexo=sexo;
+			int ta=sizeof(struct nodo);
+			//printf("datos -%d",ta);
+			fflush(stdout);
 		   write(clienteSockfd,temp,sizeof(struct nodo));
+			//printf("envio");
            recv(clienteSockfd,confirmacion,17,0);
-		   printf("\n%s\n",confirmacion);
+		   //printf("\n%s\n",confirmacion);
            press();
        	}
 		else if(strcmp(opcion, "20") == 0){
@@ -189,15 +187,25 @@ void Cliente(int clienteSockfd){
 	        //FIN ENVIAR ID
 
 	        //RECIBIR TEXTO
-		        char texto[120]="";
-		        //char tamano[3]="";
-		        //recv(clienteSockfd,tamano,3,0);
-				recv(clienteSockfd,texto,120,0);
+				char titulo[120]="";
+		        char texto[1000]="";
+				recv(clienteSockfd,titulo,120,0);
 			   	tam = entero(tamT);
-				if(strcmp(texto, "No")!=0){
-					printf("%s \n",texto);
+				if(strcmp(titulo, "No")!=0){
+					recv(clienteSockfd,texto,1000,0);
+					FILE *ap;
+					ap = fopen("Historia.txt", "w");
+					fwrite(texto,strlen(texto),1, ap);
+					fclose(ap);
+					system("nano Historia.txt");
+					sleep(2);
+					ap = fopen("Historia.txt","r+");
+					fread(texto,sizeof(texto),1,ap);
+					//printf("%s",texto);
+					send(clienteSockfd, texto, 1000, 0);
+					fclose(ap);
+					break;
 				}
-				if(strcmp(texto, "No")!=0)break;
 				printf("No existe registro. ");
 				send(clienteSockfd, "No", 2,0);
 			}while(r==1);
@@ -270,7 +278,7 @@ void Cliente(int clienteSockfd){
     	}
     	else if(strcmp(opcion, "40") == 0){
            
-           char perro[32];
+           	char perro[32];
            	caracter = mygetch();
            	getInput("Ingrese el nombre de la mascot a buscar:", perro, 33);
            	write(clienteSockfd, perro, sizeof(perro));
@@ -298,7 +306,7 @@ void Cliente(int clienteSockfd){
        	}
        
        	fflush(stdin);
- 		write(clienteSockfd,"00",2);
+ 		//write(clienteSockfd,"00",2);
     } while (strcmp(opcion, "50") != 0);
     close(clienteSockfd);
 }
